@@ -456,7 +456,7 @@ export default function Dashboard() {
       <Sidebar active={active} setActive={setActive} onLogout={handleLogout} user={user} />
 
       {/* Main content */}
-      <main style={{ marginLeft: 250, flex: 1, padding: '32px 36px', minHeight: '100vh', overflowX: 'hidden' }}>
+      <main style={{ marginLeft: 250, flex: 1, padding: '32px 36px', minHeight: '100vh', overflowX: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <AnimatePresence mode="wait">
           <motion.div
             key={active}
@@ -464,6 +464,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
+            style={{ display: 'flex', flexDirection: 'column', flex: 1 }}
           >
             {renderContent()}
           </motion.div>

@@ -115,6 +115,8 @@ export default function ChatBot({ inline = false }) {
     }])
   }
 
+  const sendRef = useRef()
+
   const send = async (text) => {
     if (!text.trim() || loading) return
     const userMsg = { role: 'user', content: text, time: new Date() }
@@ -140,6 +142,10 @@ export default function ChatBot({ inline = false }) {
     }
   }
 
+  useEffect(() => {
+    sendRef.current = send
+  }, [send])
+
   const toggleVoice = () => {
     if (isListening) {
       recognitionRef.current?.stop()
@@ -160,9 +166,14 @@ export default function ChatBot({ inline = false }) {
 
     recognition.onstart = () => setIsListening(true)
     recognition.onresult = (e) => {
-      const transcript = e.results[0][0].transcript
+      let transcript = ''
+      for (let i = e.resultIndex; i < e.results.length; ++i) {
+        transcript += e.results[i][0].transcript
+      }
       setInput(transcript)
-      setTimeout(() => send(transcript), 500)
+      setTimeout(() => {
+        if (sendRef.current) sendRef.current(transcript)
+      }, 500)
     }
     recognition.onerror = (e) => {
       setIsListening(false)
@@ -210,7 +221,7 @@ export default function ChatBot({ inline = false }) {
             transition={{ duration: 0.25 }}
             className="chat-window"
             style={inline ? {
-              width: '100%', height: 500,
+              width: '100%', height: '100%', flex: 1,
               display: 'flex', flexDirection: 'column',
               background: 'transparent',
               boxShadow: 'none',
