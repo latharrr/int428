@@ -16,3 +16,13 @@ export async function transcribeAudio(audioBase64) {
   const response = await axios.post(`${API_BASE}/transcribe`, { audio: audioBase64 })
   return response.data.text
 }
+
+export async function getTransactions() {
+  const response = await axios.get(`${API_BASE}/transactions`)
+  return response.data
+}
+
+export async function addTransaction(transaction) {
+  const response = await axios.post(`${API_BASE}/transactions`, transaction)
+  return response.data
+}

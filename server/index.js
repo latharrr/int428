@@ -5,6 +5,7 @@ require('dotenv').config({ override: true })
 const chatRouter      = require('./routes/chat')
 const analyzeRouter   = require('./routes/analyze')
 const transcribeRouter = require('./routes/transcribe')
+const transactionsRouter = require('./routes/transactions')
 
 const app  = express()
 const PORT = process.env.PORT || 5000
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }))
 app.use('/api/chat',       chatRouter)
 app.use('/api/analyze',    analyzeRouter)
 app.use('/api/transcribe', transcribeRouter)
+app.use('/api/transactions', transactionsRouter)
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', model: 'llama-3.1-8b-instant (Groq)', message: 'FraudGuard AI Backend Running ✅' })

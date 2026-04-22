@@ -7,7 +7,7 @@ import StatCard from '../components/StatCard.jsx'
 import TransactionTable from '../components/TransactionTable.jsx'
 import ChatBot from '../components/ChatBot.jsx'
 import { chartData } from '../utils/mockData.js'
-import { analyzeTransaction } from '../utils/claudeApi.js'
+import { analyzeTransaction, getTransactions, addTransaction } from '../utils/claudeApi.js'
 
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: '📊' },
@@ -89,7 +89,7 @@ function Sidebar({ active, setActive, onLogout, user }) {
 }
 
 // ──── Transaction Analyzer ────
-function TransactionAnalyzer() {
+function TransactionAnalyzer({ onAnalyzed }) {
   const [form, setForm] = useState({ amount: '', merchant: '', location: '', cardType: 'Visa', timeOfDay: 'Morning' })
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -127,6 +127,16 @@ function TransactionAnalyzer() {
       clearInterval(interval)
       setResult(res)
       setTimeout(() => setRiskWidth(res.riskScore), 100)
+      
+      if (onAnalyzed) {
+        onAnalyzed({
+          amount: `₹${parseInt(form.amount).toLocaleString('en-IN')}`,
+          merchant: form.merchant,
+          location: form.location,
+          status: res.verdict,
+          risk: res.riskScore
+        })
+      }
     } catch (err) {
       clearInterval(interval)
       toast.error('Analysis failed. Is the backend running?')
@@ -356,7 +366,7 @@ function Settings({ user }) {
 }
 
 // ──── Dashboard Home ────
-function DashboardHome({ user }) {
+function DashboardHome({ user, transactions }) {
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
 
@@ -397,7 +407,7 @@ function DashboardHome({ user }) {
       {/* Recent transactions */}
       <div className="glass" style={{ padding: 28, borderRadius: 20 }}>
         <h3 style={{ fontWeight: 700, fontSize: 17, marginBottom: 20, color: '#e2e8f0' }}>Recent Transactions</h3>
-        <TransactionTable />
+        <TransactionTable transactions={transactions} />
       </div>
 
     </div>
@@ -408,7 +418,22 @@ function DashboardHome({ user }) {
 export default function Dashboard() {
   const navigate = useNavigate()
   const [active, setActive] = useState('dashboard')
+  const [transactions, setTransactions] = useState([])
   const user = JSON.parse(localStorage.getItem('fg_user') || '{}')
+
+  useEffect(() => {
+    getTransactions().then(setTransactions).catch(console.error)
+  }, [])
+
+  const handleTransactionAnalyzed = async (txn) => {
+    try {
+      const newTxn = await addTransaction(txn)
+      setTransactions(prev => [newTxn, ...prev])
+      toast.success('Transaction saved to records')
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('fg_token')
@@ -419,12 +444,12 @@ export default function Dashboard() {
 
   const renderContent = () => {
     switch (active) {
-      case 'dashboard': return <DashboardHome user={user} />
+      case 'dashboard': return <DashboardHome user={user} transactions={transactions} />
       case 'transactions': return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           <h1 style={{ fontSize: 28, fontWeight: 800, color: '#e2e8f0' }}>Transactions & Analysis</h1>
-          <TransactionAnalyzer />
-          <div className="glass" style={{ padding: 24, borderRadius: 20 }}><TransactionTable /></div>
+          <TransactionAnalyzer onAnalyzed={handleTransactionAnalyzed} />
+          <div className="glass" style={{ padding: 24, borderRadius: 20 }}><TransactionTable transactions={transactions} /></div>
         </div>
       )
       case 'analytics': return (
