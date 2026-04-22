@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
-import { sendChatMessage } from '../utils/claudeApi.js'
+import { sendChatMessage, transcribeAudio } from '../utils/claudeApi.js'
 
 // Helper to create a past timestamp (minutes ago)
 function minsAgo(n) {
@@ -146,46 +146,57 @@ export default function ChatBot({ inline = false }) {
     sendRef.current = send
   }, [send])
 
-  const toggleVoice = () => {
+  const mediaRecorderRef = useRef(null)
+  const audioChunksRef = useRef([])
+
+  const toggleVoice = async () => {
     if (isListening) {
-      recognitionRef.current?.stop()
+      mediaRecorderRef.current?.stop()
       setIsListening(false)
       return
     }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (!SpeechRecognition) {
-      toast.error('Voice commands not supported. Try Chrome/Edge.')
-      return
-    }
-
-    const recognition = new SpeechRecognition()
-    recognitionRef.current = recognition
-    recognition.continuous = false
-    recognition.interimResults = false
-
-    recognition.onstart = () => setIsListening(true)
-    recognition.onresult = (e) => {
-      let transcript = ''
-      for (let i = e.resultIndex; i < e.results.length; ++i) {
-        transcript += e.results[i][0].transcript
-      }
-      setInput(transcript)
-      setTimeout(() => {
-        if (sendRef.current) sendRef.current(transcript)
-      }, 500)
-    }
-    recognition.onerror = (e) => {
-      setIsListening(false)
-      if (e.error === 'not-allowed') toast.error('Microphone access denied.')
-      else if (e.error !== 'no-speech') toast.error(`Mic error: ${e.error}`)
-    }
-    recognition.onend = () => setIsListening(false)
 
     try {
-      recognition.start()
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const mediaRecorder = new MediaRecorder(stream)
+      mediaRecorderRef.current = mediaRecorder
+      audioChunksRef.current = []
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          audioChunksRef.current.push(e.data)
+        }
+      }
+
+      mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach(track => track.stop())
+        
+        if (audioChunksRef.current.length === 0) return
+        
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
+        const reader = new FileReader()
+        reader.readAsDataURL(audioBlob)
+        reader.onloadend = async () => {
+          const base64Audio = reader.result
+          const tId = toast.loading('Transcribing audio...')
+          try {
+             const transcript = await transcribeAudio(base64Audio)
+             toast.dismiss(tId)
+             if (transcript && transcript.trim()) {
+               setInput(transcript)
+               if (sendRef.current) sendRef.current(transcript)
+             }
+          } catch (err) {
+             toast.dismiss(tId)
+             toast.error('Failed to transcribe audio.')
+          }
+        }
+      }
+
+      mediaRecorder.start()
+      setIsListening(true)
     } catch (err) {
-      toast.error('Could not start microphone')
+      toast.error('Microphone access denied or unavailable.')
       setIsListening(false)
     }
   }

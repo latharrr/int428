@@ -2,17 +2,20 @@ const express = require('express')
 const cors    = require('cors')
 require('dotenv').config({ override: true })
 
-const chatRouter    = require('./routes/chat')
-const analyzeRouter = require('./routes/analyze')
+const chatRouter      = require('./routes/chat')
+const analyzeRouter   = require('./routes/analyze')
+const transcribeRouter = require('./routes/transcribe')
 
 const app  = express()
 const PORT = process.env.PORT || 5000
 
 app.use(cors({ origin: process.env.CORS_ORIGIN || true, credentials: true }))
-app.use(express.json())
+app.use(express.json({ limit: '50mb' }))
+app.use(express.urlencoded({ limit: '50mb', extended: true }))
 
-app.use('/api/chat',    chatRouter)
-app.use('/api/analyze', analyzeRouter)
+app.use('/api/chat',       chatRouter)
+app.use('/api/analyze',    analyzeRouter)
+app.use('/api/transcribe', transcribeRouter)
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', model: 'llama-3.1-8b-instant (Groq)', message: 'FraudGuard AI Backend Running ✅' })
