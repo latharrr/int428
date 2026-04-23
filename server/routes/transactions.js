@@ -1,16 +1,17 @@
 const router = require('express').Router()
 
+// Seeded transactions WITHOUT pre-set status/risk — they will be analyzed via API on the client
 let transactions = [
-  { id: 'TXN-8821', amount: '₹1,45,000', merchant: 'Bank Transfer', location: 'Patna, IN', status: 'FRAUD', risk: 94 },
-  { id: 'TXN-8820', amount: '₹899.00',   merchant: 'Amazon.in',     location: 'Delhi, IN', status: 'SAFE', risk: 3 },
-  { id: 'TXN-8819', amount: '₹5,00,000', merchant: 'Wire Transfer', location: 'Jaipur, IN',  status: 'FRAUD', risk: 88 },
-  { id: 'TXN-8818', amount: '₹345.00',   merchant: 'Starbucks',     location: 'Mumbai, IN',    status: 'SAFE', risk: 2 },
-  { id: 'TXN-8817', amount: '₹85,000',   merchant: 'Crypto Exchange', location: 'Unknown',    status: 'FRAUD', risk: 79 },
-  { id: 'TXN-8816', amount: '₹649.00',   merchant: 'Netflix',       location: 'Bangalore, IN',     status: 'SAFE', risk: 5 },
-  { id: 'TXN-8815', amount: '₹12,500',   merchant: 'MakeMyTrip',    location: 'Chennai, IN',  status: 'SAFE', risk: 18 },
-  { id: 'TXN-8814', amount: '₹95,000',   merchant: 'Gift Cards x50',location: 'Kolkata, IN', status: 'FRAUD', risk: 97 },
-  { id: 'TXN-8813', amount: '₹450.00',   merchant: 'Zomato',        location: 'Pune, IN',status: 'SAFE', risk: 4 },
-  { id: 'TXN-8812', amount: '₹8,990',    merchant: 'Croma Retail',  location: 'Hyderabad, IN',  status: 'SAFE', risk: 12 },
+  { id: 'TXN-8821', amount: 145000, merchant: 'Bank Transfer',   location: 'Patna, IN',     cardType: 'Visa',       timeOfDay: 'Night',              status: null, risk: null },
+  { id: 'TXN-8820', amount: 899,    merchant: 'Amazon.in',       location: 'Delhi, IN',     cardType: 'Visa',       timeOfDay: 'Afternoon',          status: null, risk: null },
+  { id: 'TXN-8819', amount: 500000, merchant: 'Wire Transfer',   location: 'Jaipur, IN',    cardType: 'Visa',       timeOfDay: 'Early Hours (2-5am)', status: null, risk: null },
+  { id: 'TXN-8818', amount: 345,    merchant: 'Starbucks',       location: 'Mumbai, IN',    cardType: 'Mastercard', timeOfDay: 'Morning',            status: null, risk: null },
+  { id: 'TXN-8817', amount: 85000,  merchant: 'Crypto Exchange', location: 'Unknown',       cardType: 'Prepaid',    timeOfDay: 'Night',              status: null, risk: null },
+  { id: 'TXN-8816', amount: 649,    merchant: 'Netflix',         location: 'Delhi, IN',     cardType: 'Visa',       timeOfDay: 'Evening',            status: null, risk: null },
+  { id: 'TXN-8815', amount: 12500,  merchant: 'MakeMyTrip',      location: 'Chennai, IN',   cardType: 'Credit',     timeOfDay: 'Morning',            status: null, risk: null },
+  { id: 'TXN-8814', amount: 95000,  merchant: 'Gift Cards x50',  location: 'Kolkata, IN',   cardType: 'Prepaid',    timeOfDay: 'Night',              status: null, risk: null },
+  { id: 'TXN-8813', amount: 450,    merchant: 'Zomato',          location: 'Delhi, IN',     cardType: 'Visa',       timeOfDay: 'Afternoon',          status: null, risk: null },
+  { id: 'TXN-8812', amount: 8990,   merchant: 'Croma Retail',    location: 'Delhi, IN',     cardType: 'Mastercard', timeOfDay: 'Morning',            status: null, risk: null },
 ]
 
 router.get('/', (req, res) => {
@@ -24,6 +25,17 @@ router.post('/', (req, res) => {
   }
   transactions.unshift(newTxn)
   res.json(newTxn)
+})
+
+// PATCH /:id — update status/risk after client-side analysis
+router.patch('/:id', (req, res) => {
+  const { id } = req.params
+  const { status, risk } = req.body
+  const txn = transactions.find(t => t.id === id)
+  if (!txn) return res.status(404).json({ error: 'Transaction not found' })
+  txn.status = status
+  txn.risk = risk
+  res.json(txn)
 })
 
 module.exports = router

@@ -18,8 +18,8 @@ export default function Login() {
     await new Promise(r => setTimeout(r, 900))
     if (email === CREDENTIALS.email && password === CREDENTIALS.password) {
       localStorage.setItem('fg_token', 'mock-jwt-token')
-      localStorage.setItem('fg_user', JSON.stringify({ name: 'Deepanshu', email: 'admin@fraudguard.ai' }))
-      toast.success('Welcome back, Deepanshu! 🛡️')
+      localStorage.setItem('fg_user', JSON.stringify({ name: 'Jay', email: 'admin@fraudguard.ai' }))
+      toast.success('Welcome back, Jay!')
       navigate('/dashboard')
     } else {
       toast.error('Invalid credentials. Try admin@fraudguard.ai / password123')
@@ -104,7 +104,7 @@ export default function Login() {
             disabled={loading}
             style={{ width: '100%', padding: '14px', fontSize: 15, marginTop: 8, opacity: loading ? 0.7 : 1 }}
           >
-            {loading ? '🔄 Authenticating...' : '🔐 Sign In'}
+            {loading ? 'Authenticating...' : 'Sign In'}
           </motion.button>
         </form>
 

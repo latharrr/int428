@@ -4,7 +4,7 @@ const Groq = require('groq-sdk')
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
 // Tight system prompt — shorter = fewer tokens consumed
-const SYSTEM_PROMPT = `You are FraudGuard AI, a fraud detection assistant for Deepanshu.
+const SYSTEM_PROMPT = `You are FraudGuard AI, a fraud detection assistant for Jay.
 Reply in 1-2 lines only. Be direct. Expand only if the user explicitly asks for more details or explanation.`
 
 // ── Token-saving limits ──────────────────────────────────────────────────────

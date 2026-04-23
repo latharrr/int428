@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import toast from 'react-hot-toast'
@@ -7,14 +7,14 @@ import StatCard from '../components/StatCard.jsx'
 import TransactionTable from '../components/TransactionTable.jsx'
 import ChatBot from '../components/ChatBot.jsx'
 import { chartData } from '../utils/mockData.js'
-import { analyzeTransaction, getTransactions, addTransaction } from '../utils/claudeApi.js'
+import { analyzeTransaction, getTransactions, addTransaction, updateTransactionStatus } from '../utils/claudeApi.js'
 
 const NAV_ITEMS = [
-  { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-  { id: 'transactions', label: 'Transactions', icon: '💳' },
-  { id: 'analytics', label: 'Analytics', icon: '📈' },
-  { id: 'ai', label: 'AI Assistance', icon: '💬' },
-  { id: 'settings', label: 'Settings', icon: '⚙️' },
+  { id: 'dashboard', label: 'Dashboard', icon: '▣' },
+  { id: 'transactions', label: 'Transactions', icon: '≡' },
+  { id: 'analytics', label: 'Analytics', icon: '◈' },
+  { id: 'ai', label: 'AI Assistance', icon: '◎' },
+  { id: 'settings', label: 'Settings', icon: '◧' },
 ]
 
 function Sidebar({ active, setActive, onLogout, user }) {
@@ -81,7 +81,7 @@ function Sidebar({ active, setActive, onLogout, user }) {
           onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.15)'}
           onMouseLeave={e => e.currentTarget.style.background = 'rgba(239,68,68,0.08)'}
         >
-          🚪 Logout
+          Logout
         </button>
       </div>
     </div>
@@ -149,7 +149,7 @@ function TransactionAnalyzer({ onAnalyzed }) {
       {/* Form */}
       <div className="glass" style={{ padding: 28, borderRadius: 20 }}>
         <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 24, color: '#e2e8f0' }}>
-          🔍 Transaction Analyzer
+          Transaction Analyzer
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {[
@@ -193,7 +193,7 @@ function TransactionAnalyzer({ onAnalyzed }) {
             disabled={loading}
             style={{ width: '100%', padding: '14px', fontSize: 15, marginTop: 8, opacity: loading ? 0.7 : 1 }}
           >
-            {loading ? loadingText : 'Analyze Transaction'}
+            {loading ? loadingText : 'Run Fraud Analysis'}
           </motion.button>
         </div>
       </div>
@@ -220,7 +220,7 @@ function TransactionAnalyzer({ onAnalyzed }) {
               border: `1px solid ${result.verdict === 'FRAUD' ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)'}`,
               textAlign: 'center', marginBottom: 24,
             }}>
-              <div style={{ fontSize: 48, marginBottom: 8 }}>{result.verdict === 'FRAUD' ? '🚨' : '✅'}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.12em', color: result.verdict === 'FRAUD' ? '#ef4444' : '#10b981', marginBottom: 8, textTransform: 'uppercase' }}>{result.verdict === 'FRAUD' ? 'Alert' : 'Cleared'}</div>
               <div style={{ fontSize: 28, fontWeight: 800, color: result.verdict === 'FRAUD' ? '#ef4444' : '#10b981', letterSpacing: '0.05em' }}>
                 {result.verdict}
               </div>
@@ -346,7 +346,7 @@ function Settings({ user }) {
       <h3 style={{ fontWeight: 700, fontSize: 18, marginBottom: 28, color: '#e2e8f0' }}>Account Settings</h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         {[
-          { label: 'Full Name', value: user?.name || 'Deepanshu', id: 'settings-name' },
+          { label: 'Full Name', value: user?.name || 'Jay', id: 'settings-name' },
           { label: 'Email Address', value: user?.email || 'admin@fraudguard.ai', id: 'settings-email' },
           { label: 'Organization', value: 'FraudGuard AI', id: 'settings-org' },
           { label: 'API Key', value: '••••••••••••••••••••••••', id: 'settings-api-key' },
@@ -375,17 +375,17 @@ function DashboardHome({ user, transactions }) {
       {/* Greeting */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <h1 style={{ fontSize: 28, fontWeight: 800, color: '#e2e8f0', marginBottom: 4 }}>
-          {greeting}, {user?.name} 👋
+          {greeting}, {user?.name}
         </h1>
-        <p style={{ color: '#64748b', fontSize: 14 }}>Here's your fraud overview for today</p>
+        <p style={{ color: '#64748b', fontSize: 14 }}>Fraud overview for today</p>
       </motion.div>
 
-      {/* Stat cards */}
+      {/* Stat cards — computed from real transaction data */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
-        <StatCard icon="💳" label="Total Transactions" value="1,284" color="var(--color-primary)" index={0} />
-        <StatCard icon="🚨" label="Fraudulent Detected" value="47" color="#ef4444" index={1} />
-        <StatCard icon="✅" label="Safe Transactions" value="1,237" color="#10b981" index={2} />
-        <StatCard icon="⚠️" label="Risk Score" value="3.6%" color="#f59e0b" index={3} />
+        <StatCard icon="#" label="Total Transactions" value={transactions.length} color="var(--color-primary)" index={0} />
+        <StatCard icon="!" label="Fraudulent Detected" value={transactions.filter(t => t.status === 'FRAUD').length} color="#ef4444" index={1} />
+        <StatCard icon="+" label="Safe Transactions" value={transactions.filter(t => t.status === 'SAFE').length} color="#10b981" index={2} />
+        <StatCard icon="~" label="Pending Analysis" value={transactions.filter(t => !t.status).length} color="#f59e0b" index={3} />
       </div>
 
       {/* Chart */}
@@ -419,10 +419,47 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const [active, setActive] = useState('dashboard')
   const [transactions, setTransactions] = useState([])
+  const analyzingRef = useRef(new Set()) // track IDs currently being analyzed
   const user = JSON.parse(localStorage.getItem('fg_user') || '{}')
 
   useEffect(() => {
-    getTransactions().then(setTransactions).catch(console.error)
+    getTransactions().then(async (txns) => {
+      setTransactions(txns)
+
+      // Auto-analyze any transaction that has no status yet via real API call
+      const unanalyzed = txns.filter(t => !t.status)
+      if (unanalyzed.length === 0) return
+
+      for (const txn of unanalyzed) {
+        if (analyzingRef.current.has(txn.id)) continue
+        analyzingRef.current.add(txn.id)
+
+        try {
+          const result = await analyzeTransaction({
+            amount: txn.amount,
+            merchant: txn.merchant,
+            location: txn.location,
+            cardType: txn.cardType || 'Visa',
+            timeOfDay: txn.timeOfDay || 'Morning',
+          })
+
+          const status = result.verdict
+          const risk = result.riskScore
+
+          // Update server
+          await updateTransactionStatus(txn.id, status, risk)
+
+          // Update UI
+          setTransactions(prev =>
+            prev.map(t => t.id === txn.id ? { ...t, status, risk } : t)
+          )
+        } catch (err) {
+          console.error(`Auto-analyze failed for ${txn.id}:`, err.message)
+        } finally {
+          analyzingRef.current.delete(txn.id)
+        }
+      }
+    }).catch(console.error)
   }, [])
 
   const handleTransactionAnalyzed = async (txn) => {

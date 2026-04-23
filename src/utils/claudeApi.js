@@ -26,3 +26,9 @@ export async function addTransaction(transaction) {
   const response = await axios.post(`${API_BASE}/transactions`, transaction)
   return response.data
 }
+
+// Persist analysis result back to server for a given transaction ID
+export async function updateTransactionStatus(id, status, risk) {
+  const response = await axios.patch(`${API_BASE}/transactions/${id}`, { status, risk })
+  return response.data
+}

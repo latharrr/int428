@@ -17,7 +17,7 @@ const PREFEED_MESSAGES = [
   },
   {
     role: 'assistant',
-    content: `Hi Deepanshu! I'm the **FraudGuard AI Assistant**, powered by Groq.
+    content: `Hi Jay! I'm the **FraudGuard AI Assistant**, powered by Groq.
 
 I specialize in:
 🔍 Real-time transaction fraud analysis
@@ -34,7 +34,7 @@ How can I help protect you today?`,
   },
   {
     role: 'assistant',
-    content: `**Yes, Deepanshu — this is a serious red flag. Act immediately.**
+    content: `**Yes, Jay — this is a serious red flag. Act immediately.**
 
 Here's why this is high-risk:
 • **2:30 AM access** — fraudsters target off-hours when you're less likely to notice
@@ -219,7 +219,7 @@ export default function ChatBot({ inline = false }) {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}
         >
-          {open ? '✕' : '💬'}
+          {open ? '✕' : 'AI'}
         </motion.button>
       )}
 
@@ -389,7 +389,7 @@ export default function ChatBot({ inline = false }) {
                 }}
                 title="Voice Command"
               >
-                {isListening ? '🔴' : '🎤'}
+                {isListening ? 'Stop' : 'Mic'}
               </button>
               <button
                 onClick={() => send(input)}
