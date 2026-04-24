@@ -12,6 +12,10 @@
   ],
   "rewrites": [
     {
+      "source": "/ppt",
+      "destination": "/ppt.pdf"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/server/index.js"
     },
