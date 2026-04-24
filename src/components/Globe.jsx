@@ -37,11 +37,13 @@ export default function Globe() {
     return () => clearInterval(interval)
   }, [])
 
-  // Auto-rotate
+  // Auto-rotate + disable zoom
   useEffect(() => {
     if (globeRef.current) {
-      globeRef.current.controls().autoRotate = true
-      globeRef.current.controls().autoRotateSpeed = 0.5
+      const controls = globeRef.current.controls()
+      controls.autoRotate = true
+      controls.autoRotateSpeed = 0.5
+      controls.enableZoom = false
       globeRef.current.pointOfView({ altitude: 2.2 })
     }
   }, [GlobeGL])

@@ -49,7 +49,7 @@ export default function Navbar() {
 
       {/* Desktop links */}
       <div style={{ display: 'flex', gap: 32, alignItems: 'center' }} className="hidden-mobile">
-        {['features', 'globe-section', 'stats', 'testimonials'].map((id, i) => (
+        {['features', 'stats', 'testimonials', 'pricing'].map((id, i) => (
           <button
             key={id}
             onClick={() => scrollTo(id)}
@@ -57,7 +57,7 @@ export default function Navbar() {
             onMouseEnter={e => e.target.style.color = 'var(--color-primary)'}
             onMouseLeave={e => e.target.style.color = '#a3a3a3'}
           >
-            {['Features', 'How It Works', 'Stats', 'Testimonials'][i]}
+            {['Features', 'Stats', 'Testimonials', 'Pricing'][i]}
           </button>
         ))}
       </div>

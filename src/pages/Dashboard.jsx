@@ -96,7 +96,7 @@ function TransactionAnalyzer({ onAnalyzed }) {
   const [loadingText, setLoadingText] = useState('Analyzing...')
   const [riskWidth, setRiskWidth] = useState(0)
 
-  const cardTypes = ['Visa', 'Mastercard', 'Amex', 'Discover', 'Prepaid']
+  const cardTypes = ['Visa', 'Mastercard', 'Amex', 'Discover', 'Prepaid', 'UPI']
   const times = ['Morning', 'Afternoon', 'Evening', 'Night', 'Early Hours (2-5am)']
 
   const analyze = async () => {
@@ -171,15 +171,15 @@ function TransactionAnalyzer({ onAnalyzed }) {
           ))}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Card Type</label>
-              <select id="analyzer-card-type" className="input-field" value={form.cardType} onChange={e => setForm(p => ({ ...p, cardType: e.target.value }))}>
-                {cardTypes.map(c => <option key={c} value={c}>{c}</option>)}
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Payment Method</label>
+              <select id="analyzer-card-type" className="input-field" value={form.cardType} onChange={e => setForm(p => ({ ...p, cardType: e.target.value }))} style={{ colorScheme: 'dark' }}>
+                {cardTypes.map(c => <option key={c} value={c} style={{ background: '#0d1120', color: '#e2e8f0' }}>{c}</option>)}
               </select>
             </div>
             <div>
               <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Time of Day</label>
-              <select id="analyzer-time" className="input-field" value={form.timeOfDay} onChange={e => setForm(p => ({ ...p, timeOfDay: e.target.value }))}>
-                {times.map(t => <option key={t} value={t}>{t}</option>)}
+              <select id="analyzer-time" className="input-field" value={form.timeOfDay} onChange={e => setForm(p => ({ ...p, timeOfDay: e.target.value }))} style={{ colorScheme: 'dark' }}>
+                {times.map(t => <option key={t} value={t} style={{ background: '#0d1120', color: '#e2e8f0' }}>{t}</option>)}
               </select>
             </div>
           </div>
