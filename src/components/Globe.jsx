@@ -42,7 +42,7 @@ export default function Globe() {
     if (globeRef.current) {
       const controls = globeRef.current.controls()
       controls.autoRotate = true
-      controls.autoRotateSpeed = 0.5
+      controls.autoRotateSpeed = 1.0
       controls.enableZoom = false
       globeRef.current.pointOfView({ altitude: 2.2 })
     }
